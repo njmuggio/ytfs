@@ -36,10 +36,10 @@ public class YtFs {
 			return;
 		}
 
-		int x = 1920;
-		int y = 1080;
-		int blockX = 64;
-		int blockY = 60;
+		int x = 256;
+		int y = 144;
+		int blockX = 16;
+		int blockY = 16;
 		boolean encode = false;
 		String in = null;
 		String out = null;
@@ -193,7 +193,7 @@ public class YtFs {
 
 		System.out.println("Generating frames...");
 
-		IntStream.range(0, (int) Math.ceil((double)colors.size() / (x / blockX * y / blockY))).parallel().forEach(f -> {
+		IntStream.range(0, Math.max(25, (int) Math.ceil((double)colors.size() / (x / blockX * y / blockY)))).parallel().forEach(f -> {
 			FileOutputStream fos = null;
 			try {
 				fos = new FileOutputStream(outDir.toString() + "/" + String.format("%09d", f + 1) + ".png");
