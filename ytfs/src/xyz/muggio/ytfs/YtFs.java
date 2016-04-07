@@ -8,8 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -38,8 +37,8 @@ public class YtFs {
 
 		int x = 256;
 		int y = 144;
-		int blockX = 16;
-		int blockY = 16;
+		int blockX = 32;
+		int blockY = 36;
 		boolean encode = false;
 		String in = null;
 		String out = null;
@@ -368,7 +367,9 @@ public class YtFs {
 
 			for (int dy = 0; dy < y / blockY; dy++) {
 				for (int dx = 0; dx < x / blockX; dx++) {
-					colors.add(nearestColor(new Color(img.getRGB(dx * blockX + blockX / 2, dy * blockY + blockY / 2))));
+//					colors.add(nearestColor(new Color(img.getRGB(dx * blockX + blockX / 2, dy * blockY + blockY / 2))));
+//					colors.add(nearestColor(averageColor(img, dx * blockX, dy * blockY, blockX, blockY)));
+					colors.add(averageColor(img, dx * blockX, dy * blockY, blockX, blockY));
 				}
 			}
 		}
@@ -476,6 +477,32 @@ public class YtFs {
 		}
 
 		return blockColors[mr][mg][mb];
+	}
+
+	private static Color averageColor(BufferedImage img, int x, int y, int dx, int dy) {
+		int r = 0, g = 0, b = 0;
+		Map<Color, Integer> matches = new HashMap<>();
+		for (int ly = y; ly < y + dy; ly++) {
+			for (int lx = x; lx < x + dx; lx++) {
+				Color c = new Color(img.getRGB(lx, ly));
+				Color n = nearestColor(c);
+				if (matches.containsKey(n)) matches.put(n, matches.get(n) + 1);
+				else matches.put(n, 1);
+//				r += c.getRed();
+//				g += c.getGreen();
+//				b += c.getBlue();
+			}
+		}
+//		return new Color(r / (dx * dy), g / (dx * dy), b / (dx * dy));
+		Color mode = null;
+		int freq = 0;
+		for (Color key : matches.keySet()) {
+			if (matches.get(key) > freq) {
+				freq = matches.get(key);
+				mode = key;
+			}
+		}
+		return mode;
 	}
 
 	private static byte decodeColor(Color c) {
